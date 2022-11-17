@@ -59,11 +59,11 @@ resource "azurerm_route_table" "appgw-rt" {
 }
 
 resource "azurerm_route" "aks-route" {
-  name                   = "route-to-aks"
-  resource_group_name    = azurerm_resource_group.rg.name
-  route_table_name       = azurerm_route_table.appgw-rt.name
-  address_prefix         = "10.200.0.0/16"
-  next_hop_type          = "VirtualAppliance"
+  name                = "route-to-aks"
+  resource_group_name = azurerm_resource_group.rg.name
+  route_table_name    = azurerm_route_table.appgw-rt.name
+  address_prefix      = var.virtual_network_address_spoke_prefix
+  next_hop_type       = "VirtualAppliance"
   next_hop_in_ip_address = "10.100.1.68"
 }
 
@@ -74,7 +74,7 @@ resource "azurerm_subnet_route_table_association" "appgw-rt-association" {
 
 # Public Ip 
 resource "azurerm_public_ip" "app-gw-pip01" {
-  name                = "ApplicationGateway-pip01"
+  name                = "app-gw-pip01"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   allocation_method   = "Static"
@@ -87,7 +87,7 @@ resource "azurerm_public_ip" "app-gw-pip01" {
 resource "azurerm_role_assignment" "aks-agic-id-rg-contrib" {
   scope                = azurerm_resource_group.rg.id
   role_definition_name = "Contributor"
-  principal_id         = azurerm_kubernetes_cluster.k8s.ingress_application_gateway[0].ingress_application_gateway_identity[0].object_id
+  principal_id         =  azurerm_kubernetes_cluster.k8s.ingress_application_gateway[0].ingress_application_gateway_identity[0].object_id
 }
 
 resource "azurerm_application_gateway" "application-gateway" {
@@ -102,7 +102,7 @@ resource "azurerm_application_gateway" "application-gateway" {
   }
 
   gateway_ip_configuration {
-    name      = "appGatewayIpConfig"
+    name      = "app-gw-pip01"
     subnet_id = azurerm_subnet.snet-appgw.id
   }
 
@@ -146,7 +146,19 @@ resource "azurerm_application_gateway" "application-gateway" {
     http_listener_name         = local.listener_name
     backend_address_pool_name  = local.backend_address_pool_name
     backend_http_settings_name = local.http_setting_name
-    priority                   = 1
+    priority = 1
+  }
+
+  rewrite_rule_set {
+    name = "add-default-header"
+    rewrite_rule {
+      name          = "add-header-MyHeader"
+      rule_sequence = 100
+      request_header_configuration {
+          header_name  = "MyHeader"
+          header_value = "Test"
+      }
+    }
   }
 
   tags = var.tags
@@ -164,5 +176,6 @@ resource "azurerm_application_gateway" "application-gateway" {
       tags,
       url_path_map,
     ]
-  }
+  }  
 }
+
