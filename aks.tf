@@ -38,7 +38,7 @@ resource "azurerm_route" "appgw-route" {
   name                   = "route-to-appgw"
   resource_group_name    = azurerm_resource_group.rg.name
   route_table_name       = azurerm_route_table.aks-rt.name
-  address_prefix         = "10.100.0.0/23"
+  address_prefix         = var.virtual_network_address_hub_prefix
   next_hop_type          = "VirtualAppliance"
   next_hop_in_ip_address = "10.100.1.4"
 }

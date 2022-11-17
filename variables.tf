@@ -1,5 +1,3 @@
-#############################################################################
-# General
 variable "resource_group_name" {
   default     = "poc-appgw-aks-rg"
   description = "Ressource Group Name"
@@ -18,7 +16,6 @@ variable "tags" {
   }
 }
 
-#############################################################################
 # Hub
 variable "virtual_network_hub_name" {
   description = "Virtual network name"
@@ -58,7 +55,7 @@ variable "fw_management_subnet_address_prefix" {
 # Application Gateway
 variable "app_gateway_name" {
   description = "Name of the Application Gateway"
-  default     = "ApplicationGateway01"
+  default     = "app-gw1"
 }
 
 variable "app_gateway_sku" {
@@ -72,7 +69,7 @@ variable "app_gateway_tier" {
 }
 
 #############################################################################
-# Firewall
+
 variable "firewall_vm_name" {
   type    = string
   default = "firewall"
@@ -115,7 +112,7 @@ variable "username" {
 
 variable "password" {
   description = "Initial administrative password to use for all systems. Set to null for an auto-generated password."
-  default     = "Microsoft=1=1"
+  default     = "ARandomPassword=1"
   type        = string
 }
 
@@ -125,7 +122,7 @@ variable "avzones" {
 }
 
 variable "enable_zones" {
-  type    = bool
+  type = bool
   default = true
 }
 
